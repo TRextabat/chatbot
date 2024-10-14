@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  postgres:
+    build: 
+      context: ./postgres
+      dockerfile: Dockerfile.postgres
+    container_name: chat_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+  
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: chat_api
+    volumes:
+      - .:/chatbot
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+    command: python chatbot/manage.py runserver 0.0.0.0:8000
+    env_file:
+      - .env
+  
+  llama:
+    image: ollama/ollama 
+    container_name: ollama_llama
+    restart: always
+    ports:
+      - "11400:11400"  
+    environment:
+      - MODEL=llama-3.1-7b  
+    command:  ["serve"]
+
+
+
+volumes:
+  postgres_data:
