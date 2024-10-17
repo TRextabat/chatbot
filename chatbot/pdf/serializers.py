@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.fields import FileField
 from django.core.exceptions import ValidationError
 from .models import PDFDocument, PDFVectorEmbedding
 from dotenv import load_dotenv
@@ -23,16 +24,15 @@ def validate_pdf_file(value):
     return value
 
 class PDFDocumentSerializer(serializers.ModelSerializer):
-    file = serializers.FileField(validators=[validate_pdf_file])
+    file = FileField(validators=[validate_pdf_file], required=True)
 
     class Meta:
         model = PDFDocument
         fields = [
-            'id', 'title', 'description', 'file', 'parsed_text', 
-            'created', 'modified', 'status', 'status_changed'
+            'id', 'title' ,'file', 'parsed_text', 
+            'created'
         ]
-        read_only_fields = ['id', 'parsed_text', 'created', 'modified', 'status_changed']
-    
+
     def validate_title(self, value):
         if len(value) > 255:
             raise serializers.ValidationError('Title cannot exceed 255 characters.')
@@ -43,11 +43,8 @@ class PDFVectorEmbeddingSerializer(serializers.ModelSerializer):
     class Meta:
         model = PDFVectorEmbedding
         fields = ['id', 'pdf', 'vector', 
-                  'created', 'modified', 'status', 
-                  'status_changed']
+                  'created']
         
-        read_only_fields = ['id', 'created', 
-                            'modified', 'status_changed']
         
         def validate_vector(self, value):
             if not isinstance(value, list):
