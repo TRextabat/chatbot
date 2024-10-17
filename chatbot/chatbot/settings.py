@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'rest_framework',    
+    'rest_framework',
+    'pdf',    
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,5 @@ REST_FRAMEWORK = {
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0' #TODO get from env
