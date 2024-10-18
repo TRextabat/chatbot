@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'rest_framework',    
+    'rest_framework',
+    'pdf',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -122,6 +124,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -148,6 +152,32 @@ REST_FRAMEWORK = {
     'SEARCH_PARAM': 'filter[search]',
     'TEST_REQUEST_RENDERER_CLASSES': (
         'rest_framework_json_api.renderers.JSONRenderer',
+        'rest_framework.renderers.MultiPartRenderer',
     ),
     'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
 }
+
+# settings.py
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Set this to INFO or WARNING in production
+        },
+        'your_app_name': {  # Replace 'your_app_name' with your actual app name
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Change to INFO or ERROR based on your need
+        },
+    },
+}
+
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0' #TODO get from env
