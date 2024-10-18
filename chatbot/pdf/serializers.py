@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from rest_framework.fields import FileField
 from django.core.exceptions import ValidationError
 from .models import PDFDocument, PDFVectorEmbedding
 from dotenv import load_dotenv
@@ -14,7 +13,7 @@ def validate_pdf_file(value):
     if extension != '.pdf':
         raise ValidationError({"file": "Invalid file type. Please upload a PDF file."})
     
-    max_size = int(os.environ.get("MAX_PDF_SIZE"))
+    max_size = int(os.environ.get("MAX_FILE_UPLOAD_SIZE"))
     if value.size > max_size:
         raise ValidationError({"file": f"File size exceeds the maximum limit {max_size}."})
     
@@ -24,7 +23,11 @@ def validate_pdf_file(value):
     return value
 
 class PDFDocumentSerializer(serializers.ModelSerializer):
-    file = FileField(validators=[validate_pdf_file], required=True)
+    id = serializers.UUIDField(read_only=True)
+    title = serializers.CharField(required=True)
+    file = serializers.FileField(validators=[validate_pdf_file], required=True)
+    parsed_text = serializers.CharField(allow_blank=True,required=False)
+    created = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = PDFDocument
@@ -46,12 +49,12 @@ class PDFVectorEmbeddingSerializer(serializers.ModelSerializer):
                   'created']
         
         
-        def validate_vector(self, value):
-            if not isinstance(value, list):
-                raise serializers.ValidationError("Vector must be a list of float values.")
-            
-            if not all(isinstance(v, float) for v in value):
-                raise serializers.ValidationError('All elements in the vector must be floats.')
+    def validate_vector(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Vector must be a list of float values.")
         
-            return value
+        if not all(isinstance(v, float) for v in value):
+            raise serializers.ValidationError('All elements in the vector must be floats.')
+    
+        return value
         
