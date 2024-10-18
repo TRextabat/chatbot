@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_extensions',
     'rest_framework',
-    'pdf',    
+    'pdf',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -176,6 +177,7 @@ LOGGING = {
         },
     },
 }
+
 
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0' #TODO get from env
