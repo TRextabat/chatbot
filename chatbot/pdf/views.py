@@ -4,8 +4,6 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
-from drf_yasg.utils import swagger_auto_schema
-from .models import PDFDocument
 from .serializers import PDFDocumentSerializer
 import logging
 
@@ -18,13 +16,8 @@ class PDFDocumentPagination(PageNumberPagination):
 
 
 class PDF(views.APIView):
-    parser_classes = [MultiPartParser, FormParser]
 
-    @swagger_auto_schema(
-        operation_description="Upload a PDF document",
-        request_body=PDFDocumentSerializer,
-        responses={status.HTTP_201_CREATED: PDFDocumentSerializer}
-    )
+    parser_classes = [MultiPartParser, FormParser]
     def post(self, request):
         logger.info("Received POST request for PDF upload")
         logger.debug(f"Request data: {request.data}")
