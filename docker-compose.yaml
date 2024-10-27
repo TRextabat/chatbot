@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   postgres:
@@ -12,6 +12,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
+
   api:
     build: 
       context: .
@@ -20,26 +21,37 @@ services:
     volumes:
       - .:/chatbot
     ports:
-      - 8000:8000
+      - "8000:8000"
     depends_on:
       - postgres
     command: python chatbot/manage.py runserver 0.0.0.0:8000
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
     restart: always
   
   llama:
-    image: ollama/ollama 
+    build: 
+      context: .
+      dockerfile: Dockerfile.llama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all  
+              capabilities: [gpu]
+    volumes:
+      - ollama:/root/.ollama  # Correctly formatted as an array
     container_name: ollama_llama
     restart: always
     ports:
-      - "11400:11400"  
+      - "11434:11434"  
     environment:
       - MODEL=llama-3.1-7b  
-    command:  ["serve"]
-    restart: always
-
-
+    command: ["serve"]  # Make sure to use the correct command format
 
 volumes:
   postgres_data:
+  ollama:
