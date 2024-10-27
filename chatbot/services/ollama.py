@@ -34,7 +34,7 @@ class LlamaService:
         self.attempt = 3
         self.temp_dir= tempfile.mkdtemp()
         self.reader = None
-        
+        self.check_model_ready(self)
 
 
 
@@ -114,18 +114,20 @@ class LlamaService:
         """
         Customize and optimize the prompt based on the user's query for better context handling.
         """
+        logger.debug(f"User query: {user_query}")
         if "summary" in user_query.lower():
-            prompt_template = PromptTemplate(template=f"{self.context}\nPlease provide a concise summary.")
+            prompt_template = PromptTemplate(template=f"{self.context}\nSummarize this content:")
         else:
-            prompt_template = PromptTemplate(template=f"{self.context}\nProvide a detailed explanation.")
+            prompt_template = PromptTemplate(template=f"{self.context}\nAnswer the following based on the document: {user_query.strip()}")
 
         prompt = prompt_template.format(context=self.context, query=user_query.strip())
+        logger.debug(f"Final prompt: {prompt}")
         return prompt
     
     @staticmethod
-    async def check_model_ready(self):
+    def check_model_ready(self):
         try:
-            response = await sync_to_async(self.llm.query)("Are you ready?")
+            response = self.llm.query("Are you ready?")
             if "ready" in response.lower():
                 return True
         except Exception as e:
