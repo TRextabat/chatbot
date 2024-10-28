@@ -22,6 +22,20 @@ logger = logging.getLogger(__name__)
 #TODO add doc string
 
 
+class LlamaServiceManager:
+    _instances = {}
+
+    @classmethod
+    def get_service(cls, session_id):
+        if session_id not in cls._instances:
+            cls._instances[session_id] = LlamaService()
+        return cls._instances[session_id]
+
+    @classmethod
+    def delete_service(cls, session_id):
+        if session_id in cls._instances:
+            del cls._instances[session_id]
+
 class LlamaService:
     def __init__(
                 self, model_version="llama3.1", 
@@ -37,25 +51,34 @@ class LlamaService:
         self.attempt = 3
         self.temp_dir= tempfile.mkdtemp()
         self.reader = None
-        self.text_chunks = []       
+        self.text_chunks = []
+        self.session_initialized = False
+       
 
 
+    async def initialize_session(self, pdfs:list, chat_history:list):
+        if not self.session_initialized:
+            await self.parse_pdf(pdfs)
+            await self.index_document()
+            await self.create_agent(chat_history)
+            self.session_initialized = True
 
     
-    async def parse_pdf(self, pdf_path:str, chuck_size=500) -> None:
-        try:
-            f = open(pdf_path, "rb")
-            reader = PdfReader(f)
-            text = "".join([page.extract_text() for page in reader.pages])
+    async def parse_pdf(self, pdfs:list, chuck_size=500) -> None:
+        for pdf_path in pdfs:
+            try:
+                f = open(pdf_path, "rb")
+                reader = PdfReader(f)
+                text = "".join([page.extract_text() for page in reader.pages])
 
-            cleaned_text = self._clean_text(text)
-            self.text_chunks = self._chunk_text(cleaned_text, chuck_size)
-           
+                cleaned_text = self._clean_text(text)
+                self.text_chunks = self._chunk_text(cleaned_text, chuck_size)
+            
             
 
-        except Exception as e:
-            logger.error(f"Error parsing PDF: {e}")
-            raise # TODO add massage 
+            except Exception as e:
+                logger.error(f"Error parsing PDF: {e}")
+                raise # TODO add massage 
 
     async def index_document(self) -> None:
         
