@@ -6,7 +6,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
 from drf_yasg.utils import swagger_auto_schema
 from .models import PDFDocument
-from .serializers import PDFDocumentSerializer
+from .serializers import PDFDocumentSerializer, PDFDocumentListSerializer
 import logging
 
 logger = logging.getLogger(__name__)
@@ -48,4 +48,21 @@ class PDF(views.APIView):
         except Exception as e:
             logger.error(f"Exception occurred: {str(e)}", exc_info=True)
             return Response(status=status.HTTP_400_BAD_REQUEST, data={"error": str(e)})
+        
 
+    @swagger_auto_schema(
+        operation_description="List all PDF documents",
+        responses={
+            status.HTTP_200_OK: PDFDocumentSerializer(many=True),
+        }
+    )
+    def get(self, request):
+        logger.info("Received GET request to list PDF documents")
+
+        # Get all PDF documents
+        pdf_documents = PDFDocument.objects.all()
+
+        # Serialize the list of PDF documents
+        serializer = PDFDocumentListSerializer(pdf_documents, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
