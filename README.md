@@ -50,6 +50,23 @@ Create a `.env` file in the root of your project with the following content:
 
 4. The application will be available at `http://localhost:8000`.
 
+
+### Data Modles
+
+- **ChatSession**: Represents a chat session with metadata and associated PDF documents.
+- **ChatMassage**: Represents individual messages within a chat session.
+- **PDFDocument**: Represents uploaded PDF documents with parsed text content.
+### Services
+- **LlamaService**: Handles the initialization, indexing, and querying of documents using the Llama-index library and the Llama model.
+
+### How It Works
+
+1. **Upload PDF Documents**: User can upload pdf to coudl use it in any session they want in a chat session or multipel chatsessions.
+2. **Start a Chat Session**: Users can start a new chat session by using multiple PDFs and providing metadata such as a session name. The PDF documents woudl be parsed, and their text content is indexed for efficient retrieval.
+3. **Interact with the Chatbot**: Users can send messages to the chatbot, which processes the messages using the Llama model and responds with relevant information extracted from the indexed documents.
+4. **Activate/Deactivate Sessions**: Chat sessions can be activated or deactivated, allowing for multiple active sessions at a time.
+
+
 ## Using the Chatbot
  1. you could see swagger documentation at `http://localhost:8000/swagger/`
 
