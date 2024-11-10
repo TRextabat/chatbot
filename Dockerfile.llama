@@ -1,0 +1,61 @@
+#FROM -ollama/ollama:latest
+
+# Set the working directory
+#WORKDIR /app
+
+
+#COPY llamaentrypoint.sh /usr/local/bin/llamaentrypoint.sh
+
+# Pull the specific model during the build phase
+#RUN chmod +x /usr/local/bin/llamaentrypoint.sh
+
+
+#ENTRYPOINT ["/usr/local/bin/llamaentrypoint.sh"]
+
+# Use the official Ollama image as a base
+#FROM ollama/ollama
+
+# Set environment variable for the model
+#ENV MODEL=llama-3.1-7b
+
+# Set the working directory
+#WORKDIR /root/.ollama
+
+# Expose the necessary port for API requests
+#EXPOSE 11434
+
+# Command to run the Ollama application
+#CMD ["ollama", "serve"] 
+
+# Dockerfile
+
+# Start from a base image with Python and CUDA (assuming Ollama requires CUDA)
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y python3-pip python3-dev curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Ollama CLI (substitute with the correct installation steps for your case)
+RUN curl -sSL https://ollama.com/download | bash
+
+# Install Python dependencies if needed (e.g., PyTorch for Ollama model or any other dependencies)
+RUN pip3 install torch
+
+# Set environment variables for CUDA
+ENV CUDA_HOME=/usr/local/cuda \
+    PATH=/usr/local/cuda/bin:${PATH} \
+    LD_LIBRARY_PATH=/usr/local/cuda/lib64:${LD_LIBRARY_PATH}
+
+# Set the working directory
+WORKDIR /app
+
+# Copy any local files if needed
+COPY . .
+
+# Expose any necessary ports (substitute 5000 with the port used by the Ollama model, if applicable)
+EXPOSE 5000
+
+# Run the Ollama model server (replace with the actual command for starting the Ollama server)
+CMD ["ollama", "start"]
