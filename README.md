@@ -35,7 +35,7 @@ Create a `.env` file in the root of your project with the following content:
 
 1. Build and start the Docker containers:
     ```sh
-    docker-compose up --build
+    docker-compose up --build -d
     ```
 
 2. Apply database migrations:
