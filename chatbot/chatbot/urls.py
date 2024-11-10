@@ -17,7 +17,7 @@ from django.urls import path, include, re_path
 from django.contrib import admin
 from rest_framework import routers, permissions
 from pdf.views import PDF
-from chat.views import ChatSessionView, ChatInteractiveView
+from chat.views import ChatSessionView, ChatInteractiveView, ChatSessionActionView
 #from rest_framework_swagger.views import get_swagger_view
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -48,4 +48,5 @@ urlpatterns += [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('chat/', ChatSessionView.as_view(), name='start_chat_session'),
     path('chat/interact/<uuid:session_id>/', ChatInteractiveView.as_view(), name='chat_interactive'),
+    path('chat/<str:action>/<uuid:session_id>/', ChatSessionActionView.as_view(http_method_names=['patch']), name='chatsession-action'),
 ]

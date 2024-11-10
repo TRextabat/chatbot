@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import NotFound, ValidationError
 from .models import ChatSession, ChatMassage
 from .serializers import ChatSessionSerializer, ChatSessionHistorySerializer, ChatMassageSerializer, ChatMessageRequestSerializer
 from .tasks import insert_messages
@@ -80,6 +81,42 @@ class ChatSessionView(APIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+class ChatSessionActionView(APIView):
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter('action', openapi.IN_PATH, description="Action to perform (activate/deactivate)", type=openapi.TYPE_STRING)
+        ],
+        responses={
+            200: openapi.Response('OK', ChatSessionSerializer),
+            404: 'Not Found',
+            400: 'Bad Request'
+        }
+    )
+    def patch(self, request, action, session_id):
+        try:
+            chat_session = ChatSession.objects.get(id=session_id)
+        except ChatSession.DoesNotExist:
+            raise NotFound(detail="Chat session not found")
+        
+        match action:
+            case 'activate':
+                chat_session.is_active = True
+                chat_session.save()
+                # Initialize LlamaService for the chat session
+                service = LlamaServiceManager.get_service(chat_session.id)
+                pdf_paths = [pdf.file.path for pdf in chat_session.pdf_documents.all()]
+                chat_history = []  # Initial chat history
+                asyncio.run(service.initialize_session(pdfs=pdf_paths, chat_history=chat_history))
+            case 'deactivate':
+                chat_session.is_active = False
+                chat_session.save()
+                LlamaServiceManager.delete_service(chat_session.id)
+            case _:
+                raise ValidationError(detail="Invalid action")
+            
+        serializer = ChatSessionSerializer(chat_session)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class ChatInteractiveView(APIView):
 
