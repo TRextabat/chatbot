@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound, ValidationError, APIException
 from .models import ChatSession, ChatMassage
 from .serializers import ChatSessionSerializer, ChatSessionHistorySerializer, ChatMassageSerializer, ChatMessageRequestSerializer
 from .tasks import insert_messages
@@ -45,7 +45,7 @@ class ChatSessionView(APIView):
             asyncio.run(service.initialize_session(pdfs=pdf_paths, chat_history=chat_history))
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
     
     @swagger_auto_schema(
         manual_parameters=[
@@ -151,7 +151,7 @@ class ChatInteractiveView(APIView):
             chat_session = ChatSession.objects.get(id=session_id)
             logger.info(f"LOGWANT:Chat session found: {chat_session}")
         except ChatSession.DoesNotExist:
-            return Response({"error": "Chat session not found"}, status=status.HTTP_404_NOT_FOUND)
+            raise NotFound(detail="Chat session not found")
 
 
         message_text = request.data.get('message_text')
@@ -165,7 +165,7 @@ class ChatInteractiveView(APIView):
             logger.info(f"LOGWANT:Response from LlamaService: {response_text}")
         except Exception as e:
             logger.error(f"LOGWANT:Error processing message with LlamaService: {e}")
-            return Response({"error": "Error processing message with LlamaService"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            raise APIException(detail="Error processing message with LlamaService")
 
         user_message_data = {
             "session": chat_session.id,
