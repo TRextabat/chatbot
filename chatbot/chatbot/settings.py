@@ -134,30 +134,44 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Rest Framework
-REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
+""" REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': (
-        'rest_framework_json_api.parsers.JSONParser',
+        'rest_framework.parsers.JSONParser',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework_json_api.renderers.JSONRenderer',
-        'rest_framework.renderers.BrowsableAPIRenderer'
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DEFAULT_METADATA_CLASS': 'rest_framework_json_api.metadata.JSONAPIMetadata',
+    'DEFAULT_METADATA_CLASS': 'rest_framework.metadata.SimpleMetadata',
     'DEFAULT_FILTER_BACKENDS': (
-        'rest_framework_json_api.filters.QueryParameterValidationFilter',
-        'rest_framework_json_api.filters.OrderingFilter',
-        'rest_framework_json_api.django_filters.DjangoFilterBackend',
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter',
     ),
-    'SEARCH_PARAM': 'filter[search]',
+    'SEARCH_PARAM': 'search',
     'TEST_REQUEST_RENDERER_CLASSES': (
-        'rest_framework_json_api.renderers.JSONRenderer',
+        'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.MultiPartRenderer',
     ),
-    'TEST_REQUEST_DEFAULT_FORMAT': 'vnd.api+json'
-}
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+} """
 
+# settings.py
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'rest_framework.parsers.JSONParser',
+    ),
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.MultiPartRenderer',
+    ),
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json'
+}
 # settings.py
 LOGGING = {
     'version': 1,
@@ -167,14 +181,45 @@ LOGGING = {
             'class': 'logging.StreamHandler',
         },
     },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',  # Set this to INFO or WARNING in production
+    },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # Set this to INFO or WARNING in production
+            'level': 'DEBUG',
+            'propagate': True, # Set this to INFO or WARNING in production
         },
-        'your_app_name': {  # Replace 'your_app_name' with your actual app name
+        'chat': {  
             'handlers': ['console'],
-            'level': 'DEBUG',  # Change to INFO or ERROR based on your need
+            'level': 'DEBUG',
+            'propagate': False,  # Change to INFO or ERROR based on your need
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Only log errors from the database backend
+            'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Only log errors from requests
+            'propagate': False,
+        },
+        'django.security': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Only log security errors
+            'propagate': False,
+        },
+        'urllib3': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Only log errors from urllib3
+            'propagate': False,
+        },
+        'requests': {
+            'handlers': ['console'],
+            'level': 'ERROR',  # Only log errors from requests
+            'propagate': False,
         },
     },
 }
