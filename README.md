@@ -60,6 +60,7 @@ check ports 8000 and 11434 and 5432 are free. before ruuning the project. for un
 
     
     sudo lsof -i :port_number
-    
+
+when you will create your first chat session it will take a little bit long because the app would make modles in backend  
     
     
