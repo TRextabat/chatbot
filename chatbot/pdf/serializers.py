@@ -42,6 +42,11 @@ class PDFDocumentSerializer(serializers.ModelSerializer):
         return value
 
 
+class PDFDocumentListSerializer(PDFDocumentSerializer):
+    class Meta(PDFDocumentSerializer.Meta):
+        fields = ['id', 'title', 'created']  # Exclude file and parsed_text
+
+
 class PDFVectorEmbeddingSerializer(serializers.ModelSerializer):
     class Meta:
         model = PDFVectorEmbedding
