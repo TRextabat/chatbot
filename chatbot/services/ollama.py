@@ -122,6 +122,7 @@ class LlamaService:
     async def agent_query(self, user_query:str) -> str:
 
         if not self.agent:
+            logger.error("agenr is not initialized")
             raise ValueError("agenr is not initialized")
         
         #top_chuncks = await self._retrieve_relevant_chunks(user_query, top_k=5)
@@ -130,6 +131,7 @@ class LlamaService:
         #prompt = self._optimize_prompt(user_query, context_text)
         for attempt in range(self.attempt):
             try:
+                logger.info(f"Attempt {attempt + 1}: Querying agent with user query: {user_query}")
                 response = await sync_to_async(self.agent.query)(user_query)
                 return response
             except Exception as e :
