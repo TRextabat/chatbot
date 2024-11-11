@@ -80,4 +80,55 @@ check ports 8000 and 11434 and 5432 are free. before ruuning the project. for un
 
 when you will create your first chat session it will take a little bit long because the app would make modles in backend  
     
-    
+## Testing the RESTful APIs with `curl`
+
+### Upload a PDF Document
+```sh
+curl -X POST http://localhost:8000/pdf/ \
+    -H "Content-Type: multipart/form-data" \
+    -F "title=Test PDF" \
+    -F "file=@/path/to/your/test.pdf"
+```
+### Get PDF Documents
+```sh
+curl -X GET http://localhost:8000/pdf/ \
+    -H "Content-Type: application/json"
+```
+
+### Start a Chat Session
+
+```sh
+curl -X POST http://localhost:8000/chat/ \
+    -H "Content-Type: application/json" \
+    -d '{
+        "title": "Chat Session Title",
+        "description": "Chat Session Description",
+        "pdf_documents": [uuid, uuid, uuid]
+    }'
+
+```
+### Get chat sessions
+```sh
+curl -X GET "http://localhost:8000/chat/?datetime=2023-01-01T00:00:00Z&number=10&history=true" \
+    -H "Content-Type: application/json"
+```
+### Activate ChatSession 
+```sh 
+curl -X PATCH http://localhost:8000/chat/activate/<uuid:session_id>/ \
+    -H "Content-Type: application/json"
+```
+### Deactivate ChatSession
+```sh
+
+curl -X PATCH http://localhost:8000/chat/deactivate/<uuid:session_id>/ \
+    -H "Content-Type: application/json"
+```
+
+### Interact with caht session
+```sh
+curl -X POST http://localhost:8000/chat/interact/<uuid:session_id>/ \
+    -H "Content-Type: application/json" \
+    -d '{
+        "message_text": "Hello, chatbot!"
+    }'
+```
