@@ -55,7 +55,7 @@ Create a `.env` file in the root of your project with the following content:
 
 - **ChatSession**: Represents a chat session with metadata and associated PDF documents.
 - **ChatMassage**: Represents individual messages within a chat session.
-- **PDFDocument**: Represents uploaded PDF documents with parsed text content.
+- **PDFDocument**: Represents uploaded PDF documents.
 ### Services
 - **LlamaService**: Handles the initialization, indexing, and querying of documents using the Llama-index library and the Llama model.
 
